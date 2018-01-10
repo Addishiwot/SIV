@@ -26,8 +26,8 @@ class Iteration(object):
     def create_csv_file(self):
         fo_ver = open(self.csv_file, 'wb')
         writer = csv.DictWriter(fo_ver,
-                                fieldnames=["FULL_PATH", "FILE_SIZE", "USER", "GROUP", "MODE", "LAST_MODIFIED",
-                                            "MD_OF_FILE"], delimiter=',')
+                                fieldnames=["FULL_PATH", "USER", "GROUP", "MODE", "LAST_MODIFIED",
+                                            "MD_OF_FILE", "FILE_SIZE"],   delimiter=',')
         writer.writeheader()
         fo_ver.close()
 
@@ -188,26 +188,26 @@ class Compare(Iteration):
         super(Compare, self).__init__(rep, ver, hash_type)
         self.result = {}
 
-    def dictionary_difference(self, current_dict, past_dict):
+    def dictionary_difference(self, past_dict, current_dict):
         set_current, set_past = set(current_dict.keys()), set(past_dict.keys())
         intersect = set_current.intersection(set_past)
 
         # check if files are added
         if len(set_current - intersect):
-            self.update_files_dirs(["\n*************** Warning: FILES REMOVED************"])
+            self.update_files_dirs(["\n*************** Warning: FILES ADDED************"])
             self.update_files_dirs(list(set_current - intersect))
             self.update_warning_counter(len(set_current - intersect))
 
         if len(set_past - intersect):
-            self.update_files_dirs(["\n*************** Warning: FILES ADDED************"])
+            self.update_files_dirs(["\n*************** Warning: FILES REMOVED************"])
             self.update_files_dirs(list(set_past - intersect))
             self.update_warning_counter(len(set_past - intersect))
 
-    def dictionary_compare(self, current_dict, past_dict, string):
+    def dictionary_compare(self,  past_dict, current_dict, modification_type):
         set_current, set_past = set(current_dict.keys()), set(past_dict.keys())
         intersect = set_current.intersection(set_past)
         if len(list(set(o for o in intersect if past_dict[o] != current_dict[o]))):
-            self.update_files_dirs(["\n*************** Warning: " + string + " MODIFIED************"])
+            self.update_files_dirs(["\n*************** Warning: " + modification_type + " MODIFIED************"])
             self.update_files_dirs(list(set(o for o in intersect if past_dict[o] != current_dict[o])))
             self.update_warning_counter(len(set(o for o in intersect if past_dict[o] != current_dict[o])))
 
